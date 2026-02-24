@@ -75,7 +75,7 @@ WSGI_APPLICATION = 'tnvista_backend.wsgi.application'
 # ==========================================
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get("DATABASE_URL")
+        default=os.environ.get("postgresql://tnvista_user:wnEQbHS5yoWhvABHSLtNKPbBgJ98UgOE@dpg-d6e0ebvfte5s73dmqg0g-a/tnvista_db")
     )
 }
 
