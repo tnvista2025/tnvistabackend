@@ -3,19 +3,24 @@ Django settings for tnvista_backend project.
 """
 
 from pathlib import Path
+import os
+import dj_database_url
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'Tnvista2025'
+# SECURITY
+SECRET_KEY = os.environ.get("SECRET_KEY", "fallback-secret-key")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False  # IMPORTANT: False in production
 
-ALLOWED_HOSTS = ['*']  # Allow all hosts for development
+ALLOWED_HOSTS = [
+    "tnvista-backend.onrender.com",   # 🔥 CHANGE THIS
+]
 
-# Application definition
+# ==========================================
+# APPLICATIONS
+# ==========================================
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -23,13 +28,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',      # ✅ IMPORTANT: For React connection
-    'accounts',          # Your app
+
+    'corsheaders',
+    'accounts',
 ]
 
+# ==========================================
+# MIDDLEWARE
+# ==========================================
+
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # ✅ MUST BE FIRST
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise MUST be here
+    'corsheaders.middleware.CorsMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -58,19 +70,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'tnvista_backend.wsgi.application'
 
-# Database - PostgreSQL
+# ==========================================
+# DATABASE (Render PostgreSQL)
+# ==========================================
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'district_db',        # Your database name
-        'USER': 'postgres',
-        'PASSWORD': 'Tnvista2025',    # Your PostgreSQL password
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get("DATABASE_URL")
+    )
 }
 
-# Password validation
+# ==========================================
+# PASSWORD VALIDATION
+# ==========================================
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -86,37 +98,38 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
+# ==========================================
+# INTERNATIONALIZATION
+# ==========================================
+
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
+# ==========================================
+# STATIC FILES (IMPORTANT FIX)
+# ==========================================
 
-# Default primary key field type
+STATIC_URL = '/static/'
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# ==========================================
+# DEFAULT PRIMARY KEY
+# ==========================================
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# ============================================
-# CORS SETTINGS - IMPORTANT for React connection
-# ============================================
+# ==========================================
+# CORS SETTINGS
+# ==========================================
 
-# Allow React frontend to access Django API
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",      # Vite default port
-    "http://127.0.0.1:5173",      # Vite default port
-    "http://localhost:3000",       # React default port
-    "http://127.0.0.1:3000",       # React default port
-]
-
-# For development - allow all origins (temporary)
 CORS_ALLOW_ALL_ORIGINS = True
-
-# Allow credentials (cookies, authorization headers)
 CORS_ALLOW_CREDENTIALS = True
 
-# Allowed methods
 CORS_ALLOW_METHODS = [
     'DELETE',
     'GET',
@@ -126,7 +139,6 @@ CORS_ALLOW_METHODS = [
     'PUT',
 ]
 
-# Allowed headers
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
@@ -137,4 +149,4 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
-]
+] 
